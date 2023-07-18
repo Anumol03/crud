@@ -55,14 +55,14 @@ class AddEmployeeView(GenericViewSet,CreateModelMixin,ListModelMixin,UpdateModel
             total_results = courses.count()
 
             if total_results == 0:
-                # If there are no courses, set the status as "error"
+                
                 response_data = {
                     "status": "error",
                     "error_message": "No courses found.",
                     "totalResults": total_results-1
                 }
             else:
-                # If there are courses, set the status as "ok"
+                
                 serialized_courses = self.serializer_class(courses, many=True)
                 response_data = {
                     "status": "ok",
@@ -70,7 +70,7 @@ class AddEmployeeView(GenericViewSet,CreateModelMixin,ListModelMixin,UpdateModel
                     "totalResults": total_results-1
                 }
         except Exception as e:
-            # If there is an exception, set the status as "error" and print the error message
+           
             response_data = {
                 "status": "error",
                 "error_message": str(e),
