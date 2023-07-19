@@ -51,23 +51,23 @@ class AddEmployeeView(GenericViewSet,CreateModelMixin,ListModelMixin,UpdateModel
     http_method_names=['get','post','put','delete']
     def list(self, request, *args, **kwargs):
         try:
-            courses = self.get_queryset()
-            total_results = courses.count()
+            employees = self.get_queryset()
+            total_results = employees.count()
 
             if total_results == 0:
                 
                 response_data = {
                     "status": "error",
                     "error_message": "No courses found.",
-                    "totalResults": total_results-1
+                    "totalResults": total_results
                 }
             else:
                 
-                serialized_courses = self.serializer_class(courses, many=True)
+                serialized_courses = self.serializer_class(employees, many=True)
                 response_data = {
                     "status": "ok",
                     "courses": serialized_courses.data,
-                    "totalResults": total_results-1
+                    "totalResults": total_results
                 }
         except Exception as e:
            
