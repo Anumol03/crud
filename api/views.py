@@ -78,3 +78,21 @@ class AddEmployeeView(GenericViewSet,CreateModelMixin,ListModelMixin,UpdateModel
             }
         
         return Response(response_data)
+from django.http import JsonResponse
+
+def clear_all_employees(request):
+    try:
+        
+        AddEmployee.objects.all().delete()
+
+        response_data = {
+            "status": "ok",
+            "message": "All employee data cleared successfully."
+        }
+    except Exception as e:
+        response_data = {
+            "status": "error",
+            "error_message": str(e)
+        }
+
+    return JsonResponse(response_data)

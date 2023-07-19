@@ -29,7 +29,7 @@ router.register("api/addemployee/<int:pk>",api_view.AddEmployeeView,basename="em
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-     
+    path('api/addemployee/clear/',api_view.clear_all_employees),
     path("", include(router.urls)),
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
