@@ -49,6 +49,24 @@ class AddEmployeeView(GenericViewSet,CreateModelMixin,ListModelMixin,UpdateModel
     queryset = AddEmployee.objects.all()
     serializer_class = AddEmployeeSerializer
     http_method_names=['get','post','put','delete']
+    def create(self, request, *args, **kwargs):
+        try:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            response_data = {
+                "status": "ok",
+                "message": "Employee created successfully.",
+                "data": serializer.data,
+            }
+            return Response(response_data)
+
+        except Exception as e:
+            response_data = {
+                "status": "error",
+                "error_message": str(e),
+            }
+            return Response(response_data)
     def list(self, request, *args, **kwargs):
         try:
             employees = self.get_queryset()
@@ -78,6 +96,41 @@ class AddEmployeeView(GenericViewSet,CreateModelMixin,ListModelMixin,UpdateModel
             }
         
         return Response(response_data)
+    def destroy(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            self.perform_destroy(instance)
+            response_data = {
+                "status": "ok",
+                "message": "Employee deleted successfully.",
+            }
+            return Response(response_data)
+
+        except Exception as e:
+            response_data = {
+                "status": "error",
+                "error_message": str(e),
+            }
+            return Response(response_data)
+    def update(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            serializer = self.get_serializer(instance, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+            response_data = {
+                "status": "ok",
+                "message": "Employee updated successfully.",
+                "data": serializer.data,
+            }
+            return Response(response_data)
+
+        except Exception as e:
+            response_data = {
+                "status": "error",
+                "error_message": str(e),
+            }
+            return Response(response_data)
 from django.http import JsonResponse
 
 def clear_all_employees(request):
