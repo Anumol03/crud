@@ -8,47 +8,11 @@ from rest_framework import authentication,permissions
 from api.models import Employee,AddEmployee
 from api.serializers import EmployeeSerializer,AddEmployeeSerializer
 from django.contrib.auth import authenticate, login
-
-
-# class EmployeeView(ModelViewSet):
-#     serializer_class=EmployeeSerializer
-#     model=Employee
-#     queryset=Employee.objects.all()
-#     http_method_names=['get','post']
-#     def list(self, request, *args, **kwargs):
-#         try:
-#             courses = self.get_queryset()
-#             total_results = courses.count()
-
-#             if total_results == 0:
-#                 # If there are no courses, set the status as "error"
-#                 response_data = {
-#                     "status": "error",
-#                     "error_message": "No courses found.",
-#                     "totalResults": total_results
-#                 }
-#             else:
-#                 # If there are courses, set the status as "ok"
-#                 serialized_courses = self.serializer_class(courses, many=True)
-#                 response_data = {
-#                     "status": "ok",
-#                     "courses": serialized_courses.data,
-#                     "totalResults": total_results
-#                 }
-#         except Exception as e:
-#             # If there is an exception, set the status as "error" and print the error message
-#             response_data = {
-#                 "status": "error",
-#                 "error_message": str(e),
-#                 "totalResults": total_results
-#             }
-        
-#         return Response(response_data)
-    
-class AddEmployeeView(GenericViewSet,CreateModelMixin,ListModelMixin,UpdateModelMixin,DestroyModelMixin,RetrieveModelMixin):
+from django.core.exceptions import ObjectDoesNotExist
+class AddEmployeeView(GenericViewSet, CreateModelMixin, ListModelMixin, UpdateModelMixin, DestroyModelMixin, RetrieveModelMixin):
     queryset = AddEmployee.objects.all()
     serializer_class = AddEmployeeSerializer
-    http_method_names=['get','post','put','delete']
+    http_method_names = ['get', 'post', 'put', 'delete']
     def create(self, request, *args, **kwargs):
         try:
             serializer = self.get_serializer(data=request.data)
@@ -67,20 +31,19 @@ class AddEmployeeView(GenericViewSet,CreateModelMixin,ListModelMixin,UpdateModel
                 "error_message": str(e),
             }
             return Response(response_data)
+
     def list(self, request, *args, **kwargs):
         try:
             employees = self.get_queryset()
             total_results = employees.count()
 
             if total_results == 0:
-                
                 response_data = {
-                    "status": "error",
-                    "error_message": "No employee found.",
-                    "totalResults": total_results
+                    "status": "ok",
+                    "employees": [],
+                    "totalResults": 0
                 }
             else:
-                
                 serialized_employees = self.serializer_class(employees, many=True)
                 response_data = {
                     "status": "ok",
@@ -88,14 +51,16 @@ class AddEmployeeView(GenericViewSet,CreateModelMixin,ListModelMixin,UpdateModel
                     "totalResults": total_results
                 }
         except Exception as e:
-           
             response_data = {
                 "status": "error",
                 "error_message": str(e),
                 "totalResults": total_results
             }
-        
+
         return Response(response_data)
+
+    
+
     def destroy(self, request, *args, **kwargs):
         try:
             instance = self.get_object()
@@ -105,6 +70,18 @@ class AddEmployeeView(GenericViewSet,CreateModelMixin,ListModelMixin,UpdateModel
                 "message": "Employee deleted successfully.",
             }
             return Response(response_data)
+
+        except ObjectDoesNotExist:
+         
+            try:
+                instance = self.get_object()
+            except ObjectDoesNotExist:
+               
+                response_data = {
+                    "status": "error",
+                    "error_message": "Employee not found or already deleted.",
+                }
+                return Response(response_data)
 
         except Exception as e:
             response_data = {
@@ -131,11 +108,25 @@ class AddEmployeeView(GenericViewSet,CreateModelMixin,ListModelMixin,UpdateModel
                 "error_message": str(e),
             }
             return Response(response_data)
-from django.http import JsonResponse
+    def retrieve(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            serializer = self.get_serializer(instance)
+            response_data = {
+                "status": "ok",
+                "data": serializer.data,
+            }
+            return Response(response_data, status=200)  
+
+        except Exception as e:
+            response_data = {
+                "status": "ok",
+                "error_message": "data already deleted",
+            }
+            return Response(response_data)
 
 def clear_all_employees(request):
     try:
-        
         AddEmployee.objects.all().delete()
 
         response_data = {
@@ -147,5 +138,4 @@ def clear_all_employees(request):
             "status": "error",
             "error_message": str(e)
         }
-
-    return JsonResponse(response_data)
+        return Response(response_data)
